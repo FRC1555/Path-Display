@@ -1,3 +1,5 @@
+package java;
+
 public class testing {
     public static void main(String[] args) {
         double x = -25, y = -25;
