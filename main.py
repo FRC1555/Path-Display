@@ -6,12 +6,19 @@ import sys
 # Import non-standard modules.
 import pygame
 from pygame.locals import *
+from util import *
 
 from path import *
 
+pygame.init()
+
+FONT = pygame.font.Font(None, 32)
+COLOR_INACTIVE = pygame.Color('lightskyblue3')
+COLOR_ACTIVE = pygame.Color('dodgerblue2')
+
 path = []
 interpolatedPath = []
-finalPath = []
+newPath = []
 
 # Config
 trajName = "joe"
@@ -42,17 +49,41 @@ def update(dt):
     # whenever someone tries to exit.
 
     if event.type == MOUSEBUTTONUP:
+        interpolatedPath.clear()
         path.append([pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]])
-        newPath = interpolate(path, spacing)
 
-        for i in range(len(newPath)):
-            interpolatedPath.append(newPath[i])
+    if event.type == pygame.KEYUP:
+      if event.key == pygame.K_e:
+        sys.exit()
 
+    if event.type == pygame.KEYUP:
+      if event.key == pygame.K_b:
+        path.pop()
+
+    if event.type == pygame.KEYUP:
+      if event.key == pygame.K_r:
+        path.clear()
+        interpolatedPath.clear()
+
+    if event.type == pygame.KEYUP:
+      if event.key == pygame.K_p:
+        app = gui.App()
+      
+        joe = SimpleDialog()
+        joe.open()
+
+        app.init(joe)
+
+        app.paint(None)
+
+
+    if event.type == pygame.KEYUP:
+      if event.key == pygame.K_o:
             print("########NEW#############")
             for i in range(len(path)):
-              str1 = ".addWaypoint(new Pose2D(" #VAL
+              str1 = ".addWaypoint(new Point(" #VAL
               str2 = ", " #VAL
-              str3 = ", 0));"
+              str3 = "));"
           
               newPos = normalize(path[i], 648)
           
@@ -60,10 +91,6 @@ def update(dt):
               y = newPos[1]
           
               print(trajName + str1 + str(x) + str2 + str(y) + str3)
-
-    if event.type == pygame.KEYUP:
-      if event.key == pygame.K_r:
-        runPyGame()
 
 
     if event.type == QUIT:
@@ -84,11 +111,18 @@ def draw(screen):
 
   for i in range(0, len(path)):
     pygame.draw.circle(screen, (255, 255, 255), (path[i][0], path[i][1]), 4)
+    interpolatedPath.clear()
+
+    newPath = interpolate(path, spacing)
+    for i in range(len(newPath)):
+      interpolatedPath.append(newPath[i])
+
   for i in range(0, len(interpolatedPath)):
     pygame.draw.circle(screen, (255, 255, 255), (interpolatedPath[i][0], interpolatedPath[i][1]), 2)
    
   # Redraw screen here.
   # Flip the display so that the things we drew actually show up.
+
   pygame.display.flip()
  
 def runPyGame():
@@ -114,5 +148,47 @@ def runPyGame():
     draw(screen)
 
     dt = fpsClock.tick(fps)
+
+class InputBox:
+
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = FONT.render(self.text, True, self.color)
+
+    def update(self):
+        # Resize the box if the text is too long.
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pg.draw.rect(screen, self.color, self.rect, 2)              
 
 runPyGame()
