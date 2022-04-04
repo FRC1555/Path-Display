@@ -4,7 +4,7 @@ y = 1
 smoothing = 0.9
 weight = 0.1
 tolerance = 0.132
-
+#Puts dots in the middle
 def interpolate(path, spacing):
 
     newPath = [path[0]]
@@ -21,7 +21,7 @@ def interpolate(path, spacing):
             newPath.append(nextPoint)
             ratio += initialRatio
     return newPath
-
+#Take a path of points and turns the point into a quintic piecewise polynomial, AKA turns jagged into smooth path
 def smooth(path):
     newPath = [[w[0], w[1]] for w in path]
     change = tolerance
@@ -44,11 +44,12 @@ def smooth(path):
 
     return newPath
 
-def normalize(pos, screenSize):
-    posX = pos[x] - screenSize/2
-    posY = pos[y] - screenSize/2
+#Useless
+def normalize(pos, screenWidth, screenHeight):
+    posX = pos[x]
+    posY = pos[y]
 
-    normX = posX/4.5
-    normY = -posY/4.5
+    normX = posX
+    normY = posY
     return [normX, normY]
     

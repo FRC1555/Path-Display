@@ -1,8 +1,8 @@
+from tkinter import *
+
 import pyglet
 from pyglet import shapes
-from pyglet.window import key
-from pyglet.window import Window
-from pyglet.window import mouse
+from pyglet.window import Window, key, mouse
 
 from path import *
 
@@ -13,9 +13,13 @@ newPath = []
 # TODO: Segment the code more, maybe seperate into classes and/or seperate files?
 # TODO: Add JSON Config reading, writing system for Universal config settings
 # TODO: Start Working On Diologe Boxes for Editing Config on the fly in app not in JSON file
-# TODO: Migrate to borderless window with custom buttion for [min], [exit], [file], etc...
+# TODO: Migrate to borderless window with custom button for [min], [exit], [file], etc...
 
 #### Add all to JSON later ####
+
+# Settings Color(s)
+background = (42, 44, 45) ## Very Dark Gray
+border = (34, 34, 35)
 
 # Point Color(s)
 truePointColor = (255, 255, 255)
@@ -26,7 +30,7 @@ truePointSize = 4
 interpolatedPointSize = 2
 
 # Config
-trajName = "joe"
+trajName = "Jimbo"
 
 #Spacing 
 spacing = 20
@@ -38,9 +42,12 @@ tolerance = 0.132
 
 ###############################
 
-window = pyglet.window.Window(648, 648, caption='Path Creator', resizable=False, style=pyglet.window.Window.WINDOW_STYLE_DIALOG)
+ws = Tk()
+window = pyglet.window.Window(645, 324, style=Window.WINDOW_STYLE_DEFAULT) # 900 - 648 for settingscol
+window.set_caption('Path Creator')
 batch = pyglet.graphics.Batch()
 
+#Draws the paths using midpoint formula
 def drawPaths():
     for i in range(0, len(path)):
         newPath = interpolate(path, spacing)
@@ -57,15 +64,21 @@ def drawPaths():
         batch.draw()
         interpolatedPath.clear()
 
+def drawSettingOverlay():
+    box = shapes.Rectangle(647, 0, 900-647, 648, color=border, batch=batch)
+    batch.draw()
+
 @window.event
 def on_draw():
     window.clear()
     batch.draw()
 
-    background = pyglet.image.load("Frieght_Frenzy_Field_Cool.bmp")
+    background = pyglet.image.load("FRC2022Field.bmp")
     background.blit(0, 0)
 
     drawPaths()
+
+    #drawSettingOverlay()
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
@@ -91,6 +104,22 @@ def on_key_press(symbol, modifiers):
         path.clear()
         interpolatedPath.clear()
 
+    elif symbol == key.F12:
+        #message = """
+        #    Words
+        #"""
+#
+        #text_box = Text(
+        #    ws,
+        #    height=12,
+        #    width=40
+        #)
+        #text_box.pack(expand=True)
+        #text_box.insert('end', message)
+        #text_box.config(state='disabled')
+#
+        #ws.mainloop()
+        pass #Do Something soon?
     # Number keypad keys:
     elif symbol == key.RETURN:
         print("########NEW#############")
@@ -99,7 +128,7 @@ def on_key_press(symbol, modifiers):
           str2 = ", " #VAL
           str3 = "));"
         
-          newPos = normalize(path[i], 648)
+          newPos = path[i]
         
           x = newPos[0]
           y = newPos[1]
@@ -107,6 +136,7 @@ def on_key_press(symbol, modifiers):
           print(trajName + str1 + str(x) + str2 + str(y) + str3)
 
 def run():
+
     pyglet.app.run()
 
 run()
